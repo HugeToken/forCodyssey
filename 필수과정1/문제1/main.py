@@ -21,9 +21,9 @@ try:
         output_file.write('# 사고 원인 분석\n\n') 
         output_file.write('## 산소 탱크 불안정 후 폭발로 인한 시스템 다운\n\n') 
         output_file.write('### 사고 발생 시간\n\n')
-        output_file.write('2023-08-27 11:35:00,INFO,Oxygen tank unstable.   ')
-        output_file.write('2023-08-27 11:40:00,INFO,Oxygen tank explosion.   ')
-        output_file.write('2023-08-27 12:00:00,INFO,Center and mission control systems powered down.   ')
+        output_file.write('2023-08-27 11:35:00,INFO,Oxygen tank unstable.   \n')
+        output_file.write('2023-08-27 11:40:00,INFO,Oxygen tank explosion.   \n')
+        output_file.write('2023-08-27 12:00:00,INFO,Center and mission control systems powered down.   \n')
 
     print(f'{output_file_path} 파일이 성공적으로 생성되었습니다.')
 except Exception as e:
