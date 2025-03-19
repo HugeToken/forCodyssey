@@ -1,6 +1,6 @@
 # main.py
 
-print('hello Mars')
+print('Hello Mars')
 log_file_path = '필수과정1/문제1/mission_computer_main.log'
 
 try:
