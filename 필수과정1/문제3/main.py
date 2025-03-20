@@ -26,6 +26,8 @@ for a in lines:
     if f >= 0.7:
         output_list.append(a)
         print(a)
+    else :
+        break
 output_danger_file_path = '필수과정1/문제3/Mars_Base_Inventory_danger.csv'
 try:
     with open(output_danger_file_path, 'w', encoding='utf-8') as file:
@@ -52,7 +54,7 @@ except Exception as e:
 try:
     with open(output_file_path, 'rb') as bin_file:
         content = bin_file.read()
-        decoded_content = content.decode('utf-8')
+        decoded_content = content.decode()
         print('이진 파일 내용:')
         print(decoded_content)
 except FileNotFoundError:
