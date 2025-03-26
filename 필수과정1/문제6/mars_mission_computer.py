@@ -59,5 +59,5 @@ class DummySensor:
         return self.env_values
     
 ds = DummySensor()
-ds.set_env()
-ds.get_env()
+print(ds.set_env())
+print(ds.get_env())
