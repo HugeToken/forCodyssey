@@ -1,0 +1,5 @@
+2025-03-26T19:46:18.965225+09:00,internal_temperature:20,external_temperature:10,internal_humidity:55,external_illuminance:600,internal_co2:0.02,internal_oxygen:5
+2025-03-26T19:58:22.263759+09:00,internal_temperature:19,external_temperature:4,internal_humidity:56,external_illuminance:596,internal_co2:0.03,internal_oxygen:4
+2025-03-26T20:16:44.293309+09:00,internal_temperature:21,external_temperature:9,internal_humidity:58,external_illuminance:584,internal_co2:0.08,internal_oxygen:6
+2025-03-26T20:19:56.783963+09:00,internal_temperature:27,external_temperature:10,internal_humidity:51,external_illuminance:601,internal_co2:0.03,internal_oxygen:6
+2025-03-26T20:20:11.541633+09:00,internal_temperature:21,external_temperature:3,internal_humidity:50,external_illuminance:617,internal_co2:0.09,internal_oxygen:5
