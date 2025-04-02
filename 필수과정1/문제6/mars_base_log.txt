@@ -1,3 +1,4 @@
 2025-03-27T19:36:41.3888459,internal_temperature:24,external_temperature:15,internal_humidity:59,external_illuminance:537,internal_co2:0.1,internal_oxygen:5
 2025-03-27T19:43:44.9378222,internal_temperature:24,external_temperature:2,internal_humidity:57,external_illuminance:563,internal_co2:0.06,internal_oxygen:4
 2025-03-27T19:45:15.1756429,internal_temperature:23,external_temperature:8,internal_humidity:59,external_illuminance:714,internal_co2:0.04,internal_oxygen:5
+2025-04-01T16:49:22.1540456,internal_temperature:19,external_temperature:20,internal_humidity:56,external_illuminance:698,internal_co2:0.09,internal_oxygen:4
