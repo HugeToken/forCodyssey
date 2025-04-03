@@ -41,6 +41,7 @@ class MissionComputer:
                 time.sleep(5)
         except KeyboardInterrupt:
             print('System stopped...')
+            raise SystemExit
 
 
 ds = mmc2.DummySensor()

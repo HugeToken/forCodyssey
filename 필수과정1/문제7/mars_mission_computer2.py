@@ -14,7 +14,7 @@ class DummySensor:
 
     def get_random_number(self, min_value, max_value):
         rand_bytes = os.urandom(4)
-        rand_int = int.from_bytes(rand_bytes, 'big')
+        rand_int = int.from_bytes(rand_bytes)
         return min_value + (rand_int % (max_value - min_value + 1))
 
     def set_env(self):
@@ -26,8 +26,9 @@ class DummySensor:
         self.env_values['mars_base_internal_oxygen'] = self.get_random_number(4, 7)
 
     def get_kst(self):
-        os.system('powershell -Command "Get-Date -Format \'yyyy-MM-dd HH:mm:ss\'" > date.txt')
-        with open('date.txt', 'r', encoding='utf-8') as file:
+        os.system('powershell -Command "Get-Date -Format \'yyyy-MM-dd HH:mm:ss\'" > 필수과정1/문제6/date.txt')
+        #os.system('date "+%Y-%m-%d %H:%M:%S" > 필수과정1/문제6/date.txt') ## 리눅스 환경에서 사용
+        with open('필수과정1/문제6/date.txt', 'r', encoding='utf-8') as file:
             return file.read().strip()
 
     def get_env(self):
@@ -50,7 +51,7 @@ class DummySensor:
 
         return self.env_values
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     ds = DummySensor()
     print('set_env 실행')
     ds.set_env()
