@@ -1,7 +1,6 @@
 import time
 import os
 import platform
-import mars_mission_computer2 as mmc2
 
 class MissionComputer:
     def __init__(self):
@@ -13,7 +12,7 @@ class MissionComputer:
             'mars_base_internal_co2': 0,
             'mars_base_internal_oxygen': 0
         }
-        self.history = []  # 5분 평균 저장용
+        self.history = []
         self.setting = self.load_setting()
 
     def load_setting(self):
@@ -32,14 +31,19 @@ class MissionComputer:
                     parts = line.strip().split(':')
                     if len(parts) == 2 and parts[1].strip() in ['0', '1']:
                         setting[parts[0].strip()] = int(parts[1].strip())
-        except:
-            pass
+        except FileNotFoundError:
+            print('파일을 찾을 수 없습니다.')
+            raise SystemExit
+        except Exception as e:
+            print(f'기타 오류 발생: {e}')
+            raise SystemExit
+        
         return setting
 
     def get_sensor_data(self, sensor):
         sensor.set_env()
         self.env_values = sensor.get_env()
-        self.history.append(self.env_values.copy())  # 값 저장
+        self.history.append(self.env_values.copy())
 
         json_str = '{'
         json_str += '"mars_base_internal_temperature":' + str(self.env_values['mars_base_internal_temperature']) + ','
@@ -77,8 +81,11 @@ class MissionComputer:
 
             if os_name == 'Windows':
                 mem_info = os.popen('wmic ComputerSystem get TotalPhysicalMemory').read().strip().split('\n')
-                if len(mem_info) > 1 and mem_info[1].strip().isdigit():
-                    mem_size = int(mem_info[1].strip()) // (1024 * 1024)
+                if len(mem_info) > 1 :
+                    for line in mem_info:
+                            if line.strip().isdigit():
+                                mem_size = int(line.strip()) // (1024 * 1024)
+                                break
             elif os_name in ['Linux', 'Darwin']:
                 mem_info = os.popen('grep MemTotal /proc/meminfo').read().strip()
                 if mem_info:
@@ -92,8 +99,9 @@ class MissionComputer:
             if self.setting.get('memory_mb'): info['memory_mb'] = mem_size
 
             print(str(info).replace("'", '"'))
-        except:
-            print('{"error": "시스템 정보를 가져올 수 없습니다."}')
+        except Exception as e:
+            print(f'정보 로드 중 기타 오류 발생: {e}')
+            raise SystemExit
 
     def get_mission_computer_load(self):
         try:
@@ -139,8 +147,9 @@ class MissionComputer:
             if self.setting.get('memory_load_percent'): load_info['memory_load_percent'] = int(mem_load)
 
             print(str(load_info).replace("'", '"'))
-        except:
-            print('{"error": "시스템 부하 정보를 가져올 수 없습니다."}')
+        except Exception as e:
+            print(f'시스템 로드 중 기타 오류 발생: {e}')
+            raise SystemExit
 
     def run(self, sensor):
         count = 0
