@@ -66,13 +66,7 @@ class Calculator(QWidget):
 
         if current == 'Error':
             self.reset()
-            return
-        
-        if value == '.':
-            if '.' in current and not self.waiting_for_operand2:
-                return
 
-        
         if value in ['AC', '+/-', '%', '=']:
             if value == 'AC':
                 self.reset()
@@ -94,11 +88,7 @@ class Calculator(QWidget):
                 if self.waiting_for_operand2:
                     self.operator = value
                     self.display.setText(self.add_thousands_separator(self.operand1) + value)
-                else:
-                    return
-            self.adjust_font_size()
-            return
-        if self.operator and value in ['+/-', '%', '=']:
+                    self.operator = value
             return
 
         if self.waiting_for_operand2:
@@ -235,4 +225,4 @@ if __name__ == '__main__':
     app = QApplication([])
     window = Calculator()
     window.show()
-    app.exec()
+    sys.exit(app.exec())
