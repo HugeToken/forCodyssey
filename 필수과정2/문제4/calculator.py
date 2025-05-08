@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QPushButton, QLineEdit, QLabel
 from PyQt6.QtCore import Qt
-import sys
 
 class Calculator(QWidget):
     def __init__(self):
@@ -215,7 +214,7 @@ class Calculator(QWidget):
         self.display.setStyleSheet(f'padding: 12px 10px; font-size: {size}px;')
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication([])
     window = Calculator()
     window.show()
-    sys.exit(app.exec())
+    app.exec()
