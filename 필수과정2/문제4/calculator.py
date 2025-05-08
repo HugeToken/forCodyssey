@@ -83,7 +83,7 @@ class Calculator(QWidget):
                 return
 
             self.expression += value
-            self.display.setText(self.expression)
+            self.display.setText(self.format_expression(self.expression))
 
         elif value in '+-x÷':
             if not self.expression:
@@ -93,7 +93,7 @@ class Calculator(QWidget):
             else:
                 self.expression += value
 
-            self.display.setText(self.expression)
+            self.display.setText(self.format_expression(self.expression))
             self.new_input = False
 
         elif value == '=':
@@ -111,10 +111,13 @@ class Calculator(QWidget):
 
     def add(self, a, b):
         return a + b
+
     def subtract(self, a, b):   
-        return  a - b
+        return a - b
+
     def multiply(self, a, b):
-        return  a * b
+        return a * b
+
     def divide(self, a, b):
         return a / b if b != 0 else 'Error'
     
@@ -185,18 +188,23 @@ class Calculator(QWidget):
             elif temp[-1] == '.' and temp.count('.') == 1:
                 result += self.format_number(temp[:-1]) + '.'
             else:
-                result += self.format_number(temp)
+                result += self.format_number(temp, allow_trailing_zeros=True)
         return result
 
-    def format_number(self, num_str):
+    def format_number(self, num_str, allow_trailing_zeros=False):
         try:
             if '.' in num_str:
-                num = float(num_str)
-                int_part, dec_part = str(num).split('.')
-                dec_part = dec_part[:6]
-                formatted = '{:,}'.format(int(int_part))
-                
-                return formatted + ('.' + dec_part if dec_part else '')
+                if allow_trailing_zeros:
+                    int_part, dec_part = num_str.split('.')
+                    dec_part = dec_part[:6]
+                    formatted = '{:,}'.format(int(int_part))
+                    return formatted + '.' + dec_part
+                else:
+                    num = float(num_str)
+                    int_part, dec_part = str(num).split('.')
+                    dec_part = dec_part.rstrip('0')[:6]
+                    formatted = '{:,}'.format(int(int_part))
+                    return formatted + ('.' + dec_part if dec_part else '')
             else:
                 return '{:,}'.format(int(num_str))
         except:
