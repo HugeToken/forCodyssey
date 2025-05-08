@@ -62,8 +62,6 @@ class Calculator(QWidget):
 
         if self.display.text() == 'Error':
             self.reset()
-            if value != 'AC':
-                return
 
         if value == 'AC':
             self.reset()
@@ -85,19 +83,19 @@ class Calculator(QWidget):
                 return
 
             self.expression += value
-            self.display.setText(self.format_expression(self.expression))
+            self.display.setText(self.expression)
 
         elif value in '+-x÷':
             if not self.expression:
                 return
-            if  self.expression[-1] in '+-x÷.' :
-                self.expression = self.expression[:-1]
-                return
-            
-            self.expression += value
-            self.display.setText(self.format_expression(self.expression))
-            self.new_input = False 
-            
+            if self.expression[-1] in '+-x÷':
+                self.expression = self.expression[:-1] + value
+            else:
+                self.expression += value
+
+            self.display.setText(self.expression)
+            self.new_input = False
+
         elif value == '=':
             if not self.expression or self.expression[-1] in '+-x÷.':
                 return
@@ -173,7 +171,7 @@ class Calculator(QWidget):
     def format_expression(self, expr):
         result = ''
         temp = ''
-        for i, c in enumerate(expr):
+        for c in expr:
             if c in '+-x÷':
                 if temp:
                     result += self.format_number(temp)
@@ -195,8 +193,9 @@ class Calculator(QWidget):
             if '.' in num_str:
                 num = float(num_str)
                 int_part, dec_part = str(num).split('.')
-                dec_part = dec_part.rstrip('0')[:6]
+                dec_part = dec_part[:6]
                 formatted = '{:,}'.format(int(int_part))
+                
                 return formatted + ('.' + dec_part if dec_part else '')
             else:
                 return '{:,}'.format(int(num_str))
