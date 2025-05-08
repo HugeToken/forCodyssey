@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QGridLayout, QPushButton, QLineEdit, QLabel
 from PyQt6.QtCore import Qt
+import sys
 
 class Calculator(QWidget):
     def __init__(self):
@@ -23,10 +24,9 @@ class Calculator(QWidget):
         self.display = QLineEdit('0')
         self.display.setReadOnly(True)
         self.display.setAlignment(Qt.AlignmentFlag.AlignRight)
-        self.display.setStyleSheet('padding: 12px 10px;')
+        self.display.setStyleSheet('padding: 12px 10px; font-size: 30px;')
         self.display.setFixedHeight(65)
         main_layout.addWidget(self.display)
-
 
         buttons = [
             ['AC', '+/-', '%', '÷'],
@@ -64,42 +64,49 @@ class Calculator(QWidget):
         value = sender.text()
         current = self.display.text().replace(',', '')
 
-        if current == 'Error':
+        if value in '0123456789':
+            if self.waiting_for_operand2:
+                current = ''
+                self.waiting_for_operand2 = False
+            if current == '0':
+                current = value
+            else:
+                current += value
+            self.display.setText(self.format_number(current))
+
+        elif value == '.':
+            if '.' not in current:
+                current += '.'
+                self.display.setText(current)
+
+        elif value in '+-x÷':
+            self.operand1 = current
+            self.operator = value
+            self.history_label.setText(f'{self.format_number(current)} {value}')
+            self.waiting_for_operand2 = True
+
+        elif value == '=':
+            if self.operator and self.operand1:
+                expr = self.operand1.replace(',', '')
+                expr += {'+': '+', '-': '-', 'x': '*', '÷': '/'}[self.operator]
+                expr += current.replace(',', '')
+                try:
+                    result = round(eval(expr), 6)
+                    self.display.setText(self.format_number(str(result)))
+                    self.history_label.setText('')
+                    self.operand1 = ''
+                    self.operator = ''
+                except:
+                    self.display.setText('Error')
+
+        elif value == 'AC':
             self.reset()
 
-        if value in ['AC', '+/-', '%', '=']:
-            if value == 'AC':
-                self.reset()
-            elif value == '+/-':
-                self.negative_positive()
-            elif value == '%':
-                self.percent()
-            elif value == '=':
-                self.equal()
-            return
+        elif value == '+/-':
+            self.negative_positive()
 
-        if value in ['+', '-', 'x', '÷']:
-            if not self.operator:
-                self.operand1 = current
-                self.operator = value
-                self.waiting_for_operand2 = True
-                self.display.setText(self.add_thousands_separator(current) + value)
-            else:
-                if self.waiting_for_operand2:
-                    self.operator = value
-                    self.display.setText(self.add_thousands_separator(self.operand1) + value)
-                    self.operator = value
-            return
-
-        if self.waiting_for_operand2:
-            self.waiting_for_operand2 = False
-            self.display.setText(self.add_thousands_separator(self.operand1) + self.operator + value)
-        else:
-            if self.display.text().replace(',', '').rstrip('+-x÷') == '0' and value != '.':
-                self.display.setText(value)
-            else:
-                text = self.display.text().replace(',', '') + value
-                self.display.setText(self.add_thousands_separator(text))
+        elif value == '%':
+            self.percent()
 
         self.adjust_font_size()
 
@@ -109,120 +116,45 @@ class Calculator(QWidget):
         self.operand1 = ''
         self.operator = ''
         self.waiting_for_operand2 = False
-        self.adjust_font_size()
 
     def negative_positive(self):
         current = self.display.text().replace(',', '')
-        if current != '0':
-            if current.startswith('-'):
-                self.display.setText(self.add_thousands_separator(current[1:]))
-            else:
-                self.display.setText(self.add_thousands_separator('-' + current))
-        self.adjust_font_size()
+        if current.startswith('-'):
+            current = current[1:]
+        else:
+            current = '-' + current
+        self.display.setText(self.format_number(current))
 
     def percent(self):
-        current = self.display.text().replace(',', '').rstrip('+-x÷')
+        current = self.display.text().replace(',', '')
         try:
-            value = float(current)
-            value = value / 100
-            self.display.setText(self.add_thousands_separator(self.format_result(value)))
-        except ValueError:
-            self.display.setText('Error')
-        self.adjust_font_size()
-
-    def equal(self):
-        if not self.operator or self.waiting_for_operand2:
-            return
-
-        full_expr = self.display.text().replace(',', '')
-        try:
-            parts = full_expr.split(self.operator)
-            if len(parts) < 2:
-                return
-            num1 = float(parts[0])
-            num2 = float(parts[1])
-            result = 0
-
-            if self.operator == '+':
-                result = num1 + num2
-            elif self.operator == '-':
-                result = num1 - num2
-            elif self.operator == 'x':
-                result = num1 * num2
-            elif self.operator == '÷':
-                if num2 == 0:
-                    raise ZeroDivisionError
-                result = num1 / num2
-
-            formatted_result = self.format_result(result)
-            expr_display = f'{self.add_thousands_separator(parts[0])}{self.operator}{self.add_thousands_separator(parts[1])}={self.add_thousands_separator(formatted_result)}'
-            self.history_label.setText(expr_display)
-            self.display.setText(self.add_thousands_separator(formatted_result))
-            self.operand1 = ''
-            self.operator = ''
-            self.waiting_for_operand2 = False
+            result = float(current) / 100
+            self.display.setText(self.format_number(str(result)))
         except:
             self.display.setText('Error')
 
-        self.adjust_font_size()
-        self.adjust_history_font_size()
-
-    def format_result(self, result):
-        if result == int(result):
-            return str(int(result))
-        else:
-            return f'{result:.6f}'.rstrip('0').rstrip('.')
-
-    def add_thousands_separator(self, text):
+    def format_number(self, num_str):
         try:
-            if text[-1] in ['+', '-', 'x', '÷']:
-                operator = text[-1]
-                text = text[:-1]
-                return self.add_thousands_separator(text) + operator
-
-            for op in ['+', '-', 'x', '÷']:
-                if op in text:
-                    parts = text.split(op)
-                    if len(parts) == 2:
-                        left = self.add_thousands_separator(parts[0])
-                        right = self.add_thousands_separator(parts[1])
-                        return left + op + right
-
-            if '.' in text:
-                integer_part, decimal_part = text.split('.')
-                integer_part = integer_part.replace(',', '')
-                integer_part = f"{int(integer_part):,}"
-                return f"{integer_part}.{decimal_part}"
+            num = float(num_str)
+            if num.is_integer():
+                return '{:,}'.format(int(num))
             else:
-                text = text.replace(',', '')
-                return f"{int(text):,}"
+                return '{:,}'.format(round(num, 6))
         except:
-            return text
+            return num_str
 
     def adjust_font_size(self):
-        length = len(self.display.text())
-        if length < 10:
+        text_length = len(self.display.text())
+        if text_length <= 9:
             size = 30
-        elif length < 15:
+        elif text_length <= 12:
             size = 24
-        elif length < 20:
+        else:
             size = 18
-        else:
-            size = 14
-        self.display.setStyleSheet(f'padding: 10px; font-size: {size}px;')
+        self.display.setStyleSheet(f'padding: 12px 10px; font-size: {size}px;')
 
-    def adjust_history_font_size(self):
-        length = len(self.history_label.text())
-        if length < 20:
-            size = 16
-        elif length < 30:
-            size = 12
-        else:
-            size = 10
-        self.history_label.setStyleSheet(f'padding: 2px; color: gray; font-size: {size}px;')
-    
 if __name__ == '__main__':
-    app = QApplication([])
+    app = QApplication(sys.argv)
     window = Calculator()
     window.show()
     sys.exit(app.exec())
