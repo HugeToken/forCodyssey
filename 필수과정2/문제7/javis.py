@@ -17,6 +17,7 @@ def check_microphone():
         device_info = p.get_device_info_by_index(i)
         if device_info.get('maxInputChannels') > 0:
             print("유효한 마이크가 연결되어 있습니다.")
+            p.terminate()
             return True
     print("유효한 마이크가 연결되지 않았습니다.")
     return False
