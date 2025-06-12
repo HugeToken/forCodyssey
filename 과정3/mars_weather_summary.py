@@ -1,6 +1,7 @@
 import csv
 import os
 import mysql.connector
+from datetime import datetime
 
 class MySQLHelper:
     def __init__(self, host, user, password, database, sql_init_file=None):
@@ -84,7 +85,7 @@ else:
             reader = csv.DictReader(f)
             for idx, row in enumerate(reader):
                 try:
-                    mars_date = row['mars_date']
+                    mars_date = datetime.strptime(row['mars_date'], '%Y-%m-%d')
                     temp = float(row['temp'])
                     storm = int(row['storm'])
                     data_to_insert.append((mars_date, temp, storm))
@@ -112,3 +113,4 @@ else:
 
     except Exception as e:
         print(f'전체 처리 중 오류 발생: {e}')
+
