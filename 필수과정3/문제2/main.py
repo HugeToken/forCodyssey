@@ -23,6 +23,7 @@ class ChatServer:
                 try:
                     conn, addr = self.server_socket.accept()
                     threading.Thread(target=self.handle_client, args=(conn,)).start()
+                    threading.daemon = True
                 except socket.timeout:
                     continue
         except KeyboardInterrupt:
