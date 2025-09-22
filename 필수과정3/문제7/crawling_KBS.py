@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 def get_kbs_headlines():
     url = 'http://news.kbs.co.kr/news/pc/main/main.html'
     with urllib.request.urlopen(url) as response:
-        html = response.read().decode('utf-8')
+        html = response.read().decode('utf-8', errors='ignore')
     
     soup = BeautifulSoup(html, 'html.parser')
     title_tags = soup.find_all('p', class_='title')
