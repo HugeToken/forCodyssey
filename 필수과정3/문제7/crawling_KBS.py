@@ -18,7 +18,7 @@ def get_kbs_headlines():
         if not text:
             continue
 
-        if text.startswith('공유'):
+        if not text or text.startswith('추천'):
             break
 
         headlines.append(text)
@@ -28,7 +28,7 @@ def get_kbs_headlines():
 def get_weather():
     url = 'https://weather.com/ko-KR/weather/today/l/4cd22b2121525036e716bd8c994548ec12a793c5c9763af6f9a10c538f7a2a4b'
     with urllib.request.urlopen(url) as response:
-        html = response.read().decode('utf-8', errors='ignore')
+        html = response.read().decode('utf-8')
 
     soup = BeautifulSoup(html, 'html.parser')
     temp_tag = soup.find('span', {'data-testid': 'TemperatureValue'})
