@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 import os
 import time
 
@@ -15,12 +14,10 @@ id_value = os.environ.get('NAVER_ID')
 password_value = os.environ.get('NAVER_PW')
 
 try:
-    wait = WebDriverWait(browser, 10)
-
     browser.execute_script("document.getElementsByName('id')[0].value = arguments[0];", id_value)
     browser.execute_script("document.getElementsByName('pw')[0].value = arguments[0];", password_value)
 
-    login_btn = wait.until(EC.element_to_be_clickable((By.ID, 'log.login')))
+    login_btn = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.ID, 'log.login')))
     login_btn.click()
 
     time.sleep(3)
@@ -32,11 +29,11 @@ try:
     elems = []
     try:
         elems = WebDriverWait(browser, 20).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector)))
-    except TimeoutException:
+    except Exception:
         pass
 
     if not elems:
-        print('요청한 시간 내에 메일 제목 요소를 찾지 못했습니다.')
+        print('메일 제목 요소를 찾지 못했습니다.')
     else:
         for i, el in enumerate(elems, start=1):
             title = el.text.strip()
