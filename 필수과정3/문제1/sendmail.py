@@ -1,7 +1,6 @@
 # sendmail.py
 import os
 import smtplib
-import mimetypes
 from email.message import EmailMessage
 
 def main():
@@ -27,15 +26,9 @@ def main():
     msg['Subject'] = 'sendmail.py 테스트 메일'
     msg.set_content('test.png 파일 첨부 테스트 메일 전송 확인.')
 
-    ctype, _ = mimetypes.guess_type(attach_path)
-    if ctype:
-        maintype, subtype = ctype.split('/', 1)
-    else:
-        maintype, subtype = 'application', 'octet-stream'
-
     with open(attach_path, 'rb') as f:
         data = f.read()
-    msg.add_attachment(data, maintype=maintype, subtype=subtype, filename=os.path.basename(attach_path))
+    msg.add_attachment(data, maintype='image', subtype='png', filename=os.path.basename(attach_path))
 
     SMTP_HOST = 'smtp.gmail.com'
     try:
@@ -45,7 +38,7 @@ def main():
             smtp.ehlo()
             smtp.login(MY_EMAIL, MY_PASS)
             smtp.send_message(msg)
-        print('메일 전송 성공 (STARTTLS).')
+        print('메일 전송 성공')
     except Exception as e:
         print('전송 실패:', e)
         return
