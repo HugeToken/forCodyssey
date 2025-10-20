@@ -32,18 +32,16 @@ def make_message(from_addr, to_addr, to_name):
     msg = EmailMessage()
     msg['From'] = from_addr
     msg['To'] = to_addr
-    msg['Subject'] = 'HTML 테스트 메일'
-    plain = f'{to_name}님,\n\n HTML 형식 메일입니다.\n\n감사합니다.'
+    msg['Subject'] = 'HTML메일 테스트'
     html = f"""\
 <html>
   <body>
-    <p>{to_name}님,</p>
-    <p><b>sendmail.py</b> 테스트입니다 — 이 메일은 <i>HTML 형식</i>으로 발송되었습니다.</p>
+    <h3>{to_name}님,</h3>
+    <p><b>sendmail2.py</b> 테스트 메일입니다. — 이 메일은 <i>HTML 형식</i>으로 발송되었습니다.</p>
   </body>
 </html>
 """
-    msg.set_content(plain)
-    msg.add_alternative(html, subtype='html')
+    msg.set_content(html, subtype='html')
     return msg
 
 def main():
