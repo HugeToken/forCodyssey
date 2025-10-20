@@ -32,12 +32,14 @@ def make_message(from_addr, to_addr, to_name):
     msg = EmailMessage()
     msg['From'] = from_addr
     msg['To'] = to_addr
-    msg['Subject'] = 'HTML메일 테스트'
+    msg['Subject'] = 'HTML메일 테스트 (사과 첨부)'
     html = f"""\
 <html>
   <body>
     <h3>{to_name}님,</h3>
-    <p><b>sendmail2.py</b> 테스트 메일입니다. — 이 메일은 <i>HTML 형식</i>으로 발송되었습니다.</p>
+    <p><b>sendmail2.py</b> 테스트 메일입니다. — 이 메일은 <i>HTML 형식</i>으로 발송되었습니다.</p><br>
+    <img src="https://i.namu.wiki/i/v9vQqGVAT-G4txF_G7jP2fnyEDXmghwVyjBxLYyU2qKz5jryDcUjnJkdwQLhS9nShFh_hl_UOTi6LJZI4cQEIg.webp">
+    <p>이 메일은 사과 사진이 첨부되었습니다.</p>
   </body>
 </html>
 """
@@ -61,9 +63,7 @@ def main():
 
     try:
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as smtp:
-            smtp.ehlo()
             smtp.starttls()
-            smtp.ehlo()
             smtp.login(user, pwd)
             for name, addr in recipients:
                 msg = make_message(user, addr, name)
