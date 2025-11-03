@@ -28,8 +28,5 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8000/todos" -Method Get
 
 # 항목 추가 (POST)
 $body = '{"item": "hihi"}'
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/todos" -Method Post -ContentType "application/json" -Body $body
-
-# 빈 값 입력 경고 확인 (POST)
 $body = '{"item": ""}'
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/todos" -Method Post -ContentType "application/json" -Body $body -ErrorAction Stop
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/todos" -Method Post -ContentType "application/json" -Body $body
