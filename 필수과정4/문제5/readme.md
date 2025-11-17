@@ -1,4 +1,4 @@
-FASTAPI Windows 명령어 목록
+# FASTAPI Windows 명령어 목록
 
 # 1. 환경 설정 및 설치
 
@@ -18,7 +18,9 @@ pip install fastapi "uvicorn[standard]" sqlalchemy "aiosqlite" alembic pydantic 
 alembic init alembic
 
 alembic.ini 수정
+
 sqlalchemy.url = driver://user:pass@localhost/dbname 주석처리
+
 alembic/env.py 대체
 
 alembic revision --autogenerate -m "Initial database setup"
@@ -26,5 +28,5 @@ alembic revision --autogenerate -m "Initial database setup"
 alembic upgrade head
 # 2. 서버 실행
 
-# FastAPI 서버 실행 (todo.py 파일 필요)
-uvicorn todo:app --reload
+# FastAPI 서버 실행 (main.py 파일 필요)
+uvicorn main:app --reload
