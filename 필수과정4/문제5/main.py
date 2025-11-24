@@ -7,10 +7,20 @@ from models import Base, Question
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
+# 💡 [추가] question_router 모듈 임포트
+# 반드시 'domain' 폴더가 project root에 있어야 합니다.
+from domain.question import question_router 
+
 app = FastAPI(
     title="Pyboard FastAPI",
     description="SQLAlchemy and FastAPI 게시판 프로젝트"
 )
+
+# 💡 [추가] 1. 라우터 등록
+# FastAPI의 include_router()를 사용하여 question_router의 엔드포인트를 등록합니다.
+app.include_router(question_router.router, prefix="/api", tags=["question"])
+
+
 async def create_db_and_tables():
     """비동기 엔진을 사용하여 모델에 정의된 테이블을 생성합니다."""
     async with engine.begin() as conn:
