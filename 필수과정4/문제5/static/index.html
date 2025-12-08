@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Pyboard - 모던 게시판</title>
+    
+    <style>
+        /* === CSS 변수 (색상 팔레트 관리) === */
+        :root {
+            --primary-color: #007bff; /* 메인 버튼/강조 색상 (파란색 계열) */
+            --secondary-color: #6c757d; /* 보조 색상 */
+            --background-color: #f8f9fa; /* 밝은 배경 */
+            --card-background: #ffffff; /* 카드 배경 */
+            --text-color: #212529; /* 기본 텍스트 색상 */
+            --border-color: #e9ecef; /* 구분선 */
+            --success-color: #28a745;
+        }
+
+        /* === 기본 스타일 === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px 20px;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        
+        /* === 카드 스타일 (폼/목록) === */
+        .card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        /* === 폼 요소 === */
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+            color: var(--secondary-color);
+            margin-top: 15px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            transition: border-color 0.3s;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        /* === 버튼 === */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        #load-questions {
+            background-color: var(--secondary-color);
+        }
+        
+        #load-questions:hover {
+            background-color: #5a6268;
+        }
+        
+        /* === 질문 목록 === */
+        #list-container {
+            min-height: 100px;
+        }
+
+        .question-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+        
+        .question-item:last-child {
+            border-bottom: none;
+        }
+
+        .subject {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .content {
+            margin-bottom: 5px;
+            line-height: 1.5;
+            color: var(--text-color);
+        }
+
+        small {
+            color: var(--secondary-color);
+            font-size: 0.85em;
+        }
+        
+        /* === Alert 메시지 (성공/실패 피드백) === */
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #721c24;
+        }
+
+        /* === 로딩 텍스트 === */
+        #list-container:empty:before {
+            content: "등록된 질문이 없습니다.";
+            color: var(--secondary-color);
+            display: block;
+            text-align: center;
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pyboard ✨</h1>
+            <p> 게시판 테스트 페이지</p>
+        </header>
+
+        <h2>📝 새 질문 등록 (POST /api/question/create)</h2>
+        <div class="card">
+            <div id="form-message" class="alert" style="display:none;"></div>
+            <form id="question-form">
+                <label for="subject">제목:</label>
+                <input type="text" id="subject" name="subject" required placeholder="질문의 제목을 입력하세요.">
+
+                <label for="content">내용:</label>
+                <textarea id="content" name="content" required placeholder="질문의 상세 내용을 입력하세요."></textarea>
+                
+                <button type="submit">질문 등록하기</button>
+            </form>
+        </div>
+
+        <h2>📰 질문 목록 (GET /api/question/list)</h2>
+        <div style="text-align: right;">
+            <button id="load-questions">목록 새로고침</button>
+        </div>
+        <div class="card" id="list-container">
+            </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api/question'; // 서버에서 서빙되므로 상대 경로 사용
+        const formMessage = document.getElementById('form-message');
+
+        function displayMessage(message, type) {
+            formMessage.textContent = message;
+            formMessage.className = `alert alert-${type}`;
+            formMessage.style.display = 'block';
+            setTimeout(() => {
+                formMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // 1. 질문 등록 (POST)
+        document.getElementById('question-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const subject = document.getElementById('subject').value;
+            const content = document.getElementById('content').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ subject, content })
+                });
+
+                if (response.status === 204) {
+                    displayMessage("✅ 질문이 성공적으로 등록되었습니다!", 'success');
+                    document.getElementById('question-form').reset();
+                    loadQuestions(); // 등록 후 목록 새로고침
+                } else {
+                    const errorData = await response.json();
+                    displayMessage(`❌ 등록 실패: ${errorData.detail || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                console.error('Network Error:', error);
+                displayMessage('❌ 네트워크 오류 또는 서버 연결 실패.', 'error');
+            }
+        });
+
+        // 2. 질문 목록 로드 (GET)
+        async function loadQuestions() {
+            const container = document.getElementById('list-container');
+            container.innerHTML = '<div style="text-align: center; color: var(--secondary-color);">데이터를 불러오는 중...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/list`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json(); 
+
+                if (data && data.length > 0) {
+                    container.innerHTML = data.map(q => `
+                        <div class="question-item">
+                            <div class="subject">${q.subject} (ID: ${q.id})</div>
+                            <div class="content">${q.content}</div>
+                            <small>등록일: ${new Date(q.create_date).toLocaleString()}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    // 비어있을 때는 CSS의 :empty:before 스타일이 적용됨
+                    container.innerHTML = '';
+                }
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                container.innerHTML = '<div class="alert alert-error">질문 목록을 불러오는 데 실패했습니다. 서버를 확인해주세요.</div>';
+            }
+        }
+
+        // 초기 로드 및 버튼 이벤트 연결
+        document.getElementById('load-questions').addEventListener('click', loadQuestions);
+        
+        // 페이지 로드 시 목록 자동 로드
+        document.addEventListener('DOMContentLoaded', loadQuestions);
+    </script>
+</body>
+</html>

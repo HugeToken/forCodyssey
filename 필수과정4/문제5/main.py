@@ -1,4 +1,4 @@
-# main.py
+# main.py (수정 완료)
 
 from fastapi import FastAPI, Depends, HTTPException
 import uvicorn
@@ -7,11 +7,19 @@ from models import Base, Question
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from domain.question import question_router 
+# 💡 [추가] 정적 파일 서빙 및 리디렉션을 위한 임포트
+from fastapi.staticfiles import StaticFiles 
+from starlette.responses import RedirectResponse, HTMLResponse 
 
 app = FastAPI(
     title="Pyboard FastAPI",
     description="SQLAlchemy and FastAPI 게시판 프로젝트"
 )
+
+# 💡 [추가] 정적 파일 서빙 설정
+# 'static' 디렉토리에 있는 파일을 '/static' URL 경로를 통해 접근 가능하게 합니다.
+# (index.html 파일을 'static' 폴더로 이동해야 함)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(question_router.router, prefix="/api", tags=["question"])
 
@@ -24,12 +32,15 @@ async def create_db_and_tables():
 @app.on_event("startup")
 async def startup_event():
     """애플리케이션 시작 시 DB 테이블을 생성합니다 (초기 개발용)."""
+    # 💡 [수정] 테이블 생성 함수를 호출하여 DB 테이블이 자동으로 만들어지도록 합니다.
+    await create_db_and_tables() 
     print("FastAPI 애플리케이션 시작")
 
 @app.get("/")
 def read_root():
-    """기본 루트 경로 엔드포인트"""
-    return {"message": "Welcome to Pyboard FastAPI!"}
+    """기본 루트 경로 엔드포인트를 index.html로 리디렉션합니다."""
+    # 💡 [수정] 루트 경로로 접속하면 정적 파일 경로로 리디렉션
+    return RedirectResponse(url="/static/index.html")
 
 @app.post("/test/create_question")
 async def create_test_question(db: AsyncSession = Depends(get_db)):
